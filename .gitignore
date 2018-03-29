@@ -1,4 +1,9 @@
+.gitignore
+
 *.psd
 
+.DS_Store
 Thumbs.db
 Desktop.ini
+
+prepros-6.config
