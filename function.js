@@ -49,7 +49,7 @@ function update(e) {
 			var maxdps = combatant[player[0]].encdps;
 
 			row.find('.name').text(name.name);
-			row.find('.icon').css('background', 'url(img/icons/' + name.Job + '.png)');
+			row.find('.icon').css('background', 'url(lib/img/icons/' + name.Job + '.png)');
 			row.find('.bar').css('width', ((name.encdps / maxdps) * 100) + '%');
 
 			//暴击 + 总伤害 + 占比

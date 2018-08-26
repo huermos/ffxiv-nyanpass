@@ -1,11 +1,6 @@
 @font-face{
-    font-family: Bryant;
-    src : url('../font/Bryant.ttf');
-}
-
-@font-face{
-    font-family: InputSans1;
-    src : url('../font/SpaceMono.ttf');
+    font-family: SpaceMono;
+    src : url('lib/font/SpaceMono.ttf');
 }
 
 body {
@@ -134,7 +129,7 @@ body {
 	width: 70px;
 	color: #EEE1C5;
 	font-size: 26px;
-	font-family: InputSans1;
+	font-family: SpaceMono;
 	letter-spacing: 0.08px;
 	text-shadow: 0 0 3px #E3A52B;
 	z-index: 10;
@@ -202,8 +197,6 @@ body {
 .chps {
 	color: #C6C6C6;
 }
-
-
 
 @-webkit-keyframes fullexpand {
 	0% {
