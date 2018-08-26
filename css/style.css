@@ -1,11 +1,11 @@
 @font-face{
     font-family: Bryant;
-    src : url('../lib/Bryant.ttf');
+    src : url('../font/Bryant.ttf');
 }
 
 @font-face{
     font-family: InputSans1;
-    src : url('../lib/SpaceMono.ttf');
+    src : url('../font/SpaceMono.ttf');
 }
 
 body {
