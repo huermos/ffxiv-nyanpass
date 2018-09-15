@@ -3,61 +3,31 @@
 <head>
 	<meta charset="utf-8" />
 	<title>NyanPass</title>
-	<link href="css/style.css" type="text/css" rel="stylesheet">
-	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
-	<script type="text/javascript" src="js/function.js"></script>
+	<link href="style.css" type="text/css" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="function.js"></script>
 </head>
 <body>
-	<div id="handle">
-		<div class="inside">
-			<span class="hide" onclick="hideoverlay()"></span>
-			<a>NYANPASS</a>
+<div id="border">
+	<div class="container">
+		<div id="header">
+			<span class="encountertitle" onclick="titleFadeOut()">NyanPass</span>
+			<span class="duration" onclick="location.reload()">Version 2.0</span>
+		</div>
+
+		<div class="line" style="top: 33px;"></div>
+
+		<div id="overlay">
+			<span class="waiting">等待数据传输</span>
+		</div>
+
+		<div class="line" style="bottom: 36px;"></div>
+
+		<div id="button">
+			<a class="cdps" onclick="dpstime()">伤害</a>
+			<a class="chps" onclick="hpstime()">治疗</a>
 		</div>
 	</div>
-
-	<div id="outside">
-		<div class="container">
-			<div id="header">
-				<span class="encountertitle">Version 1.2</span>
-				<span class="duration" onclick="location.reload()"></span>
-			</div>
-
-			<div id="line"></div>
-
-			<li id="sdps">
-				<div class="icon"></div>
-				<span id="dps"></span>
-				<span class="name"></span>
-				<span class="detail"></span>
-				<div class="background">
-					<span class="bar"></span>
-				</div>
-			</li>
-
-			<li id="shps">
-				<div class="icon"></div>
-				<span class="hps"></span>
-				<span class="name"></span>
-				<span class="detail"></span>
-				<div class="background">
-					<span class="bar"></span>
-				</div>
-			</li>
-
-			<ul class="alldps"></ul>
-			<ul class="allhps"></ul>
-
-			<div id="overlay">
-				<span class="waiting">等待数据传输</span>
-			</div>
-
-			<div id="sline"></div>
-
-			<div id="button">
-				<a class="cdps" onclick="dpstime()">伤害</a>
-				<a class="chps" onclick="hpstime()">治疗</a>
-			</div>
-		</div>
-	</div>
+</div>
 </body>
 </html>
