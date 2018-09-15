@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>NyanPass</title>
+	<link href="css/style.css" type="text/css" rel="stylesheet">
+	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
+	<script type="text/javascript" src="js/function.js"></script>
+</head>
+<body>
+	<div id="handle">
+		<div class="inside">
+			<a>FFXIV</a>
+		<span class="open" onclick="doopen()"></span>
+	</div>
+</div>
+
+<div id="outside">
+	<div class="container">
+		<div id="header">
+			<span class="encounterdetail">Version 1.4</span>
+			<span class="reload" onclick="location.reload()"></span>
+			<span class="close" onclick="dooutside()"></span>
+		</div>
+
+			<div id="line"></div>
+
+			<li id="eachdps">
+				<div class="icon"></div>
+				<span id="dps"></span>
+				<span class="name"></span>
+				<span class="detail"></span>
+	<div class="background">
+		<span class="bar"></span>
+	</div>
+</li>
+
+<ul class="alldps"></ul>
+
+<div id="overlay">
+	<span class="waiting">等待数据传输</span>
+</div>
+		</div>
+	</div>
+</body>
+</html>
