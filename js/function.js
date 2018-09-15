@@ -1,127 +1,227 @@
-"use strict";
+"use strict"; //严格模式
 
-function JobOrName(combatant) {
-	combatant.JobOrName = combatant.Job || combatant.name; //方便统计陆行鸟和召唤兽，并统一定义名字和职业
+    var rows = 10;
+    var rdps_max = 0;
 
-	if(	combatant.JobOrName.indexOf("之灵 (") != -1 ||
-		combatant.JobOrName.indexOf("宝石兽 (") != -1 ||
-		combatant.JobOrName.indexOf("小仙女 (") != -1 ||
-		combatant.JobOrName.indexOf("式浮空炮塔 (") != -1) { //召唤，学者和机工的宠物
-		combatant.JobOrName = "Pet";
-	} else if(combatant.JobOrName.indexOf(" (") != -1) { //陆行鸟
-		combatant.JobOrName = "Cho";
-	} else if(combatant.JobOrName.indexOf("Limit Break") == 0) { //Limit Break
-		combatant.JobOrName = "Lmb";
-	}
+    String.prototype.capitalize = function() { //首字母大写，可能没有用
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
 
-	return combatant.JobOrName;
-}
+    function JobOrName(combatant) {
+        combatant.JobOrName = combatant.Job || combatant.name;
+        var egiSearch = combatant.JobOrName.indexOf("-Egi (");
+        if (egiSearch !=-1)
+        {
+            combatant.JobOrName = combatant.JobOrName.substring(0,egiSearch);
+        }
+        else if (combatant.JobOrName.indexOf("Eos (")==0)
+        {
+            combatant.JobOrName = "PET";
+        }
+        else if (combatant.JobOrName.indexOf("Selene (")==0)
+        {
+            combatant.JobOrName = "PET";
+        }
+        else if (combatant.JobOrName.indexOf("Carbuncle (")!=-1)
+        {
+            combatant.JobOrName = "PET";
+        }
+        else if (combatant.JobOrName.indexOf(" (")!=-1)
+        {
+            combatant.JobOrName = "CHO";
+        }       
+        return combatant.JobOrName;
+    };
 
-function update(e) {
-	var encounter = e.detail.Encounter; //战斗环境数据
-	var players = e.detail.Combatant; //战斗人员数据
-	var names = Object.keys(players).slice(0,15); //提取最多15组player
+    function update(e) {
+        var encounter = e.detail.Encounter;
+        var combatants = e.detail.Combatant;
+        var template = $('#source li');
+        var container = $('#overlay').clone();
 
-	$('#header').find('.encounterdetail').text(encounter.title + ', ' + encounter.duration); //标题 + 战斗时间
-	$('#overlay').html(''); //初始化数据
-	$('#overlay').append($('.alldps').clone()); //在container结尾建立.alldps
-	
-	for (var i = 0; i < names.length; i++) {
-		var combatant = players[names[i]]; //各战斗者的数据
-		var row = $('#eachdps').clone(); //使用.clone()建立新的li标签
-		var maxdps = Math.max(combatant.encdps, maxdps); //比较并记录最大dps
+        container.html('');
 
-		if (!maxdps) {
-			maxdps = parseFloat(combatant.encdps);
-		}
+        var rdps = parseFloat(encounter.encdps);
 
-		row.find('.name').text(combatant.name);
-		row.find('.icon').css('background', 'url(img/icons/' + JobOrName(combatant) + '.png)');
-		
-		row.find('.bar').css('width', ((parseFloat(combatant.encdps) / maxdps) * 100) + '%');
+        if (!isNaN(rdps) && rdps != Infinity) {
+            rdps_max = Math.max(rdps_max, rdps);
+        }
 
-		combatant.encdps = parseFloat(combatant.encdps); //dps转化为数值
-		if (maxdps >= 100) { //总dps大于100不使用小数
-			row.find('#dps').text(combatant.ENCDPS);
-		} else if (maxdps >= 10) {
-			var encdpsfixed = combatant.encdps.toFixed(1); //定义encdpsfixed取一位小数
-			if (combatant.encdps < 10) { //如果dps只有一位则在前面加0
-				row.find('#dps').text('0' + encdpsfixed);
-			} else {
-				row.find('#dps').text(encdpsfixed);
-			}
-		} else {
-			row.find('#dps').text(combatant.encdps);
-		}
+        var header = $('#header li').clone();
+        if (encounter.encdps.length <= 7) {
+            header.find('.raiddps').text(encounter.encdps);
+        } else {
+            header.find('.raiddps').text(encounter.ENCDPS);
+        }
+        header.find('.encountertitle').text(encounter.title);
+        header.find('.duration').text(encounter.duration);
 
-		if(	JobOrName(combatant) == 'Whm' ||
-			JobOrName(combatant) == 'Sch' ||
-			JobOrName(combatant) == 'Ast' ||
-			JobOrName(combatant) == 'Cnj') {
-			row.find('.detail').text(combatant['OverHealPct'] + ' [' + combatant['healed'] + ', ' + combatant['healed%'] + ']'); //过量治疗 + 总治疗 + 占比
-		} else {
-			row.find('.detail').text(combatant['crithit%'] + ' (' + combatant['damage'] + ', ' + combatant['damage%'] + ')'); //暴击 + 总伤害 + 占比
-		}
+        // set inactive
+        if (!e.detail.isActive) {
+            rdps_max = 0;
+            $('body').addClass('inactive');
+        } else {
+            $('body').removeClass('inactive');
+        }
 
-		if(	JobOrName(combatant) == 'War' ||
-			JobOrName(combatant) == 'Pld' ||
-			JobOrName(combatant) == 'Drk' ||
-			JobOrName(combatant) == 'Mrd' ||
-			JobOrName(combatant) == 'Gla') {
-			row.find('.bar').css('background', '#28c0b4');
-		}
-		else if(JobOrName(combatant) == 'Whm' ||
-				JobOrName(combatant) == 'Sch' ||
-				JobOrName(combatant) == 'Ast' ||
-				JobOrName(combatant) == 'Cnj') {
-			row.find('.bar').css('background', '#1ac174');
-		}
-		else if(JobOrName(combatant) == 'Brd' ||
-				JobOrName(combatant) == 'Drg' ||
-				JobOrName(combatant) == 'Mnk' ||
-				JobOrName(combatant) == 'Nin' ||
-				JobOrName(combatant) == 'Smn' ||
-				JobOrName(combatant) == 'Blm' ||
-				JobOrName(combatant) == 'Mch' ||
-				JobOrName(combatant) == 'Arc' ||
-				JobOrName(combatant) == 'Lnc' ||
-				JobOrName(combatant) == 'Pld' ||
-				JobOrName(combatant) == 'Pgl' ||
-				JobOrName(combatant) == 'Rog' ||
-				JobOrName(combatant) == 'Acn' ||
-				JobOrName(combatant) == 'Thm' ||
-				JobOrName(combatant) == 'Rdm' ||
-				JobOrName(combatant) == 'Sam') {
-			row.find('.bar').css('background', '#ee2e48');
-		}
-		else if(JobOrName(combatant) == 'Cho' ||
-				JobOrName(combatant) == 'Pet') {
-			row.find('.bar').css('background', '#e6d033');
-		}
-		else if(JobOrName(combatant) == 'Lmb') {
-			row.css('display', 'none');
-		}
+        container.append(header);
 
-		$('#overlay .alldps').append(row);
-	}
-}
+        var limit = Math.max(combatants.length, rows);
+        var names = Object.keys(combatants).slice(0,rows-1);
+        var maxdps = false;
 
-$(document).on('onOverlayDataUpdate', function(e) {
-	update(e.originalEvent);
+        for (var i = 0; i < names.length; i++) {
+            var combatant = combatants[names[i]];
+            var row = template.clone();
+
+            if (!maxdps) {
+                maxdps = parseFloat(combatant.encdps);
+            }
+
+            if (combatant.name == 'YOU') {
+                row.addClass('you');
+            }
+            row.find('.job-icon').html('<img src="img/icons/' + JobOrName(combatant) + '.png" onerror="$(this).attr(\'src\', \'img/icons/error.png\');">');
+            //row.find('.job-icon').html('<img src="img/icons/' + JobOrName(combatant) + '.png">');
+            row.find('.name').text(combatant.name + ', ' + combatant['crithit%']);
+
+            if (combatant.ENCDPS <= 100) {
+                row.find('.number').text(combatant.encdps + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');
+            } else {
+                row.find('.number').text(combatant.ENCDPS + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');
+            }
+
+            row.find('.bar').css('width', ((parseFloat(combatant.encdps) / maxdps) * 100) + '%');
+
+            if(JobOrName(combatant) == 'War') //战士//
+            {row.find('.bar').css('background', '#e61a16');}
+
+            else if(JobOrName(combatant) == 'Pld') //骑士//
+            {row.find('.bar').css('background', '#28c0b4');}
+
+            else if(JobOrName(combatant) == 'Brd') //诗人//
+            {row.find('.bar').css('background', '#c6d738');}
+
+            else if(JobOrName(combatant) == 'Drg') //龙骑士//
+            {row.find('.bar').css('background', '#5188e7');}
+
+            else if(JobOrName(combatant) == 'Mnk') //武僧//
+            {row.find('.bar').css('background', '#e6d033');}
+
+            else if(JobOrName(combatant) == 'Nin') //忍者//
+            {row.find('.bar').css('background', '#ee2e48');}
+
+            else if(JobOrName(combatant) == 'Smn') //召唤师//
+            {row.find('.bar').css('background', '#1ac174');}
+
+            else if(JobOrName(combatant) == 'Blm') //黑魔//
+            {row.find('.bar').css('background', '#8361c1');}
+
+            else if(JobOrName(combatant) == 'Whm') //白魔//
+            {row.find('.bar').css('background', '#efedd0');
+            row.find('.number').text(combatant.ENCHPS + '/' + combatant.ENCDPS + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');}
+
+            else if(JobOrName(combatant) == 'Sch') //学者//
+            {row.find('.bar').css('background', '#1491d6');
+            row.find('.number').text(combatant.ENCHPS + '/' + combatant.ENCDPS + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');}
+
+            else if(JobOrName(combatant) == 'Drk') //黑骑//
+            {row.find('.bar').css('background', '#c29344');}
+
+            else if(JobOrName(combatant) == 'Mch') //机工//
+            {row.find('.bar').css('background', '#0bacd2');}
+
+            else if(JobOrName(combatant) == 'Ast') //占星//
+            {row.find('.bar').css('background', '#e8a874');
+            row.find('.number').text(combatant.ENCHPS + '/' + combatant.ENCDPS + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');}
+
+            else if(JobOrName(combatant) == 'Mrd') //Marauder//
+            {row.find('.bar').css('background', '#e61a16');}
+
+            else if(JobOrName(combatant) == 'Gla') //Gladiator//
+            {row.find('.bar').css('background', '#28c0b4');}
+
+            else if(JobOrName(combatant) == 'Arc') //Archer//
+            {row.find('.bar').css('background', '#c6d738');}
+
+            else if(JobOrName(combatant) == 'Lnc') //Lancer//
+            {row.find('.bar').css('background', '#5188e7');}
+
+            else if(JobOrName(combatant) == 'Pgl') //Pugilist//
+            {row.find('.bar').css('background', '#e6d033');}
+
+            else if(JobOrName(combatant) == 'Rog') //Rogue//
+            {row.find('.bar').css('background', '#ee2e48');}
+
+            else if(JobOrName(combatant) == 'Acn') //Arcanist//
+            {row.find('.bar').css('background', '#1ac174');
+            row.find('.hps').text('HPS' + ' ' + combatant.enchps);}
+
+            else if(JobOrName(combatant) == 'Thm') //Thaumaturge//
+            {row.find('.bar').css('background', '#8361c1');}
+
+            else if(JobOrName(combatant) == 'Cnj') //Conjurer//
+            {row.find('.bar').css('background', '#efedd0');
+            row.find('.number').text(combatant.ENCHPS + '/' + combatant.ENCDPS + ' (' + combatant['damage'] + ', ' + combatant['damage%'] +')');}
+
+            else if(JobOrName(combatant) == 'Rdm') //赤魔//
+            {row.find('.bar').css('background', '#da3a7d');}
+
+            else if(JobOrName(combatant) == 'Sam') //武士//
+            {row.find('.bar').css('background', '#f57819');}
+
+            else if(JobOrName(combatant) == 'Alc') //Alchemist//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Arm') //Armorer//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Bsm') //Blacksmith//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Crp') //Carpenter//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Cul') //Culinarian//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Gsm') //Goldsmith//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Ltw') //Leatherworker//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Wvr') //Weaver//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Bot') //Botanist//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Fsh') //Fisher//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'Min') //Miner//
+            {row.find('.bar').css('background', 'rgba(150,150,150,0.65)');}
+
+            else if(JobOrName(combatant) == 'CHO') //陆行鸟//
+            {row.find('.bar').css('background', '#efe343');
+            row.find('.hps').text('HPS' + ' ' + combatant.enchps);}
+
+            else if(JobOrName(combatant) == 'Limit Break') //Limit Break//
+            {row.css('display', 'none');}
+
+            container.append(row);
+        }
+        
+        $('#overlay').replaceWith(container);
+    }
+
+    $(document).on('onOverlayDataUpdate', function(e) {
+        update(e.originalEvent);
+    });
+
+    window.addEventListener('message', function(e) {
+    if (e.data.type === 'onOverlayDataUpdate') {
+        update(e.data);
+    }
 });
-
-window.addEventListener('message', function(e) {
-	if (e.data.type === 'onOverlayDataUpdate') {
-		update(e.data);
-	}
-});
-
-function doopen() {
-	$('#outside').fadeIn();
-	$('#handle').fadeOut().delay(500);
-}
-
-function dooutside() {
-	$('#outside').fadeOut();
-	$('#handle').fadeIn();
-}
