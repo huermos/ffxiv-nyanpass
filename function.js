@@ -113,23 +113,3 @@ function update(e) {
 function titleFadeOut() {
 	$('body').fadeOut();
 }
-
-/*
-var aaali = document.getElementById("overlay");
-var ali = aaali.getElementsByTagName("li"); //建立数组加入overlay中所有的li
-var list = [];
-var tli=ali.length;
-
-for(var i = 0; i < tli; i++) {
-	list[i] = ali[i];
-} //对数组进行排序
-
-list.sort(
-	function (a,b) {
-		return parseFloat(b.innerHTML) - parseFloat(a.innerHTML); //这样来进行我们简单的比较
-});
-
-for(var j=0;j<tli;j++){
-	overlay.appendChild(list[j]);
-}
-*/
