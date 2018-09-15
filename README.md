@@ -1,4 +1,4 @@
-# Nyanpass - FFXIV Overlay
+# Nyanpass - FFXIV Overlay theme
 
 A new theme of Overlay Plugin.
 
